@@ -205,6 +205,7 @@ gss.long10 <- gss.long10 %>%
          abscale7, homosex, premarsx, teensex, xmarsex, pillok, pornlaw,  
          marhomo, sexeduc)
 
+#---- Create a wide format out of the previously created long format:----
 gss.wide10 <- gss.long10 %>%
   filter(!is.na(wave)) %>%
   #gather all variables observed in multiple waves to one key, value pair of columns
@@ -216,15 +217,17 @@ gss.wide10 <- gss.long10 %>%
   #spread new variables over columns
   spread(v, value)
 
-
+#---- Create & combine weighting vectors ----
 weight06 <- gss06 %>% mutate(idnum = paste0("06", "-", id_1)) %>% select(idnum, wtpannr123) 
 weight08 <- gss08 %>% mutate(idnum = paste0("08", "-", id_1)) %>% select(idnum, wtpannr123)
 weight10 <- gss10 %>% mutate(idnum = paste0("10", "-", id_1),
                              wtpannr123 = WTPANNR123) %>% select(idnum, wtpannr123)
 all.weights <- bind_rows(weight06, weight08, weight10)
 
-
+# join weights to recoded data 
 gss.wide <- bind_rows(gss.wide06, gss.wide08, gss.wide10) %>% left_join(all.weights)
+
+#---- Reshape data again to a long format ----
 gss.long <- gss.wide %>% 
   gather(key = "variable", value = "value", -c(idnum, ds, minage, wtpannr123)) %>%
   separate(variable, into = c("var", "wave")) %>%
@@ -237,8 +240,7 @@ rm(gss.long06, gss.long08, gss.long10, gss.wide06, gss.wide08, gss.wide10, weigh
    weight10, all.weights, gss06, gss08, gss10)
 
 
-#create a data frame of the variables and how many levels they have
-#and give them small and large category labels
+#---- Create a data frame of the variables and how many levels they have and give them small and large category labels ----
 attitude_vars <- data.frame(var = names(gss.long), 
                             levels = apply(gss.long, 2, 
                                            function(x) length(unique(x[!is.na(x)])))) %>%

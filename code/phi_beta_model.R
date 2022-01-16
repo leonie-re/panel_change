@@ -4,8 +4,8 @@
 #the presence of persistent change in the GSS panels.
 
 #### Load in a long version of the GSS panels.
-load("~/Desktop/panel_change/data/gsslong.Rdata")
-load("~/Desktop/panel_change/data/attitude_vars.Rdata")
+load("./data/gsslong.Rdata")
+load("./data/attitude_vars.Rdata")
 
 #Make a list of variables in the gss
 gss_vars <- attitude_vars$var
@@ -35,14 +35,14 @@ for (i in 1:length(gss_vars)) {
     select(-c(w1, w2, w3)) 
 
   #Unconstrained model
-  nls1 <- nls(y3 ~ a + b*p*y2 + b*(1-p)*y1,
+  nls1 <- nls(y3 ~ a + b*p*y2 + b*(1-p)*y1, #combined AUM & SDM 
               data = all.data,
               start = list(a = 0, b = 1, p = 0),
               weights = wtpannr123)
   bic1 <- BIC(nls1)
   
   #Model that constrains phi to .5
-  nls2 <- nls(y3 ~ a + b*.5*y2 + b*(.5)*y1,
+  nls2 <- nls(y3 ~ a + b*.5*y2 + b*(.5)*y1, #This model should generate a better fit for data, if SDM is a preferable explanation.
               data = all.data,
               start = list(a = 0, b = 1),
               weights = wtpannr123)
